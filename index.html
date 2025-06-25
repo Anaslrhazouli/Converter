@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .calculator {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            color: #111827;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 24px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .result-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .result-icon.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .result-icon.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .result-content {
+            color: #4b5563;
+        }
+
+        .result-main {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 8px 0;
+            color: #059669;
+        }
+
+        .result-details {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                max-width: 100%;
+                padding: 0 16px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .calculator {
+                padding: 24px 20px;
+            }
+            
+            .tab {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* Remove all unnecessary complex styling */
+        .result-error .result-content {
+            color: #dc2626;
+        }
+
+        .result-error .result-title {
+            color: #dc2626;
+        }
+
+        /* Simplify animations */
+        .result.show {
+            animation: slideIn 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Convert</h1>
+            <p>Simple currency, tax & discount calculations</p>
+        </div>
+
+        <div class="calculator">
+            <div class="tabs">
+                <button class="tab active" data-tab="currency">Currency</button>
+                <button class="tab" data-tab="tax">Tax</button>
+                <button class="tab" data-tab="discount">Discount</button>
+            </div>
+
+            <!-- Currency Tab -->
+            <div class="tab-content active" id="currency">
+                <form id="currency-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="from-currency">From</label>
+                            <select id="from-currency" required>
+                                <option value="EUR">Euro</option>
+                                <option value="USD">US Dollar</option>
+                                <option value="GBP">British Pound</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="to-currency">To</label>
+                            <select id="to-currency" required>
+                                <option value="USD">US Dollar</option>
+                                <option value="EUR">Euro</option>
+                                <option value="GBP">British Pound</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" step="0.01" min="0" placeholder="Enter amount" required>
+                    </div>
+                    <button type="submit" class="btn">Convert</button>
+                </form>
+                
+                <div class="loading" id="currency-loading">Converting...</div>
+                <div class="result" id="currency-result"></div>
+            </div>
+
+            <!-- Tax Tab -->
+            <div class="tab-content" id="tax">
+                <form id="tax-form">
+                    <div class="form-group">
+                        <label for="ht">Price (Tax Excluded)</label>
+                        <input type="number" id="ht" step="0.01" min="0" placeholder="Enter price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taux">Tax Rate (%)</label>
+                        <input type="number" id="taux" step="0.01" min="0" placeholder="Enter tax rate" required>
+                    </div>
+                    <button type="submit" class="btn">Calculate</button>
+                </form>
+                
+                <div class="loading" id="tax-loading">Calculating...</div>
+                <div class="result" id="tax-result"></div>
+            </div>
+
+            <!-- Discount Tab -->
+            <div class="tab-content" id="discount">
+                <form id="discount-form">
+                    <div class="form-group">
+                        <label for="prix">Original Price</label>
+                        <input type="number" id="prix" step="0.01" min="0" placeholder="Enter price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pourcentage">Discount (%)</label>
+                        <input type="number" id="pourcentage" step="0.01" min="0" max="100" placeholder="Enter discount" required>
+                    </div>
+                    <button type="submit" class="btn">Calculate</button>
+                </form>
+                
+                <div class="loading" id="discount-loading">Calculating...</div>
+                <div class="result" id="discount-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                
+                // Hide all results
+                document.querySelectorAll('.result').forEach(r => r.classList.remove('show'));
+                document.querySelectorAll('.loading').forEach(l => l.classList.remove('show'));
+            });
+        });
+
+        // Currency Conversion
+        document.getElementById('currency-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('currency-loading');
+            const result = document.getElementById('currency-result');
+            const btn = e.target.querySelector('.btn');
+            
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+            
+            const from = document.getElementById('from-currency').value;
+            const to = document.getElementById('to-currency').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/convert?from=${from}&to=${to}&amount=${amount}`);
+                const data = await response.json();
+                
+                loading.classList.remove('show');
+                result.classList.add('show');
+                btn.disabled = false;
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-icon success">✓</div>
+                            <div class="result-title">Conversion Successful</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-main">${amount} ${from} = ${data.convertedAmount} ${to}</div>
+                            <div class="result-details">Exchange rate applied: 1 ${from} = ${(data.convertedAmount / amount).toFixed(4)} ${to}</div>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-icon error">✗</div>
+                            <div class="result-title">Error</div>
+                        </div>
+                        <div class="result-content">${data.error}</div>
+                    `;
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                result.classList.add('show');
+                btn.disabled = false;
+                result.innerHTML = `
+                    <div class="result-header">
+                        <div class="result-icon error">✗</div>
+                        <div class="result-title">Network Error</div>
+                    </div>
+                    <div class="result-content">${error.message}</div>
+                `;
+            }
+        });
+
+        // Tax Calculation
+        document.getElementById('tax-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('tax-loading');
+            const result = document.getElementById('tax-result');
+            const btn = e.target.querySelector('.btn');
+            
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+            
+            const ht = parseFloat(document.getElementById('ht').value);
+            const taux = parseFloat(document.getElementById('taux').value);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/tva?ht=${ht}&taux=${taux}`);
+                const data = await response.json();
+                
+                loading.classList.remove('show');
+                result.classList.add('show');
+                btn.disabled = false;
+                
+                if (response.ok) {
+                    const taxAmount = data.ttc - data.ht;
+                    result.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-icon success">✓</div>
+                            <div class="result-title">Tax Calculated</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-main">Final Price: $${data.ttc}</div>
+                            <div class="result-details">
+                                Original Price: $${data.ht}<br>
+                                Tax (${data.taux}%): $${taxAmount.toFixed(2)}<br>
+                                Total with Tax: $${data.ttc}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-icon error">✗</div>
+                            <div class="result-title">Error</div>
+                        </div>
+                        <div class="result-content">${data.error}</div>
+                    `;
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                result.classList.add('show');
+                btn.disabled = false;
+                result.innerHTML = `
+                    <div class="result-header">
+                        <div class="result-icon error">✗</div>
+                        <div class="result-title">Network Error</div>
+                    </div>
+                    <div class="result-content">${error.message}</div>
+                `;
+            }
+        });
+
+        // Discount Calculation
+        document.getElementById('discount-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('discount-loading');
+            const result = document.getElementById('discount-result');
+            const btn = e.target.querySelector('.btn');
+            
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+            
+            const prix = parseFloat(document.getElementById('prix').value);
+            const pourcentage = parseFloat(document.getElementById('pourcentage').value);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/remise?prix=${prix}&pourcentage=${pourcentage}`);
+                const data = await response.json();
+                
+                loading.classList.remove('show');
+                result.classList.add('show');
+                btn.disabled = false;
+                
+                if (response.ok) {
+                    const savings = data.prixInitial - data.prixFinal;
+                    result.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-icon success">✓</div>
+                            <div class="result-title">Discount Applied</div>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-main">Final Price: $${data.prixFinal}</div>
+                            <div class="result-details">
+                                Original Price: $${data.prixInitial}<br>
+                                Discount (${data.pourcentage}%): -$${savings.toFixed(2)}<br>
+                                You Save: $${savings.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-icon error">✗</div>
+                            <div class="result-title">Error</div>
+                        </div>
+                        <div class="result-content">${data.error}</div>
+                    `;
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                result.classList.add('show');
+                btn.disabled = false;
+                result.innerHTML = `
+                    <div class="result-header">
+                        <div class="result-icon error">✗</div>
+                        <div class="result-title">Network Error</div>
+                    </div>
+                    <div class="result-content">${error.message}</div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+    // Controls the font family.
+"editor.fontFamily": "DejaVuSansMono Nerd Font",
+// Controls the font size.
+"editor.fontSize": 14,
+}
