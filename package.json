@@ -4,13 +4,27 @@
   "main": "convert.js",
   "scripts": {
     "start": "node convert.js",
-    "test": "jest"
+    "dev": "NODE_ENV=development node convert.js",
+    "start:prod": "NODE_ENV=production node convert.js",
+    "test": "jest --testPathIgnorePatterns=e2e",
+    "test:unit": "jest test/convert.test.js",
+    "test:functional": "jest test/convert.functional.test.js",
+    "test:e2e": "jest --config test/jest-puppeteer.config.js test/convert.e2e.test.js",
+    "test:all": "jest --verbose --testPathIgnorePatterns=e2e",
+    "test:complete": "npm run test:all && npm run test:e2e",
+    "test:coverage": "jest --coverage --testPathIgnorePatterns=e2e",
+    "test:coverage:all": "jest --coverage --verbose --testPathIgnorePatterns=e2e",
+    "test:coverage:open": "jest --coverage --testPathIgnorePatterns=e2e && start coverage/lcov-report/index.html"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "jest": "^30.0.3"
+    "jest": "^30.0.3",
+    "jest-puppeteer": "^11.0.0",
+    "puppeteer": "^24.11.0",
+    "puppeteer-core": "^24.11.0",
+    "supertest": "^7.1.1"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -1,0 +1,38 @@
+{
+  "testEnvironment": "node",
+  "testTimeout": 30000,
+  "collectCoverageFrom": [
+    "convert.js"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 75,
+      "lines": 80,
+      "statements": 80
+    }
+  },
+  "coverageReporters": [
+    "text",
+    "text-summary",
+    "html",
+    "lcov",
+    "json"
+  ],
+  "coverageDirectory": "coverage",
+  "projects": [
+    {
+      "displayName": "unit-integration",
+      "testMatch": ["<rootDir>/test/convert.test.js", "<rootDir>/test/convert.functional.test.js"],
+      "collectCoverageFrom": [
+        "<rootDir>/convert.js"
+      ]
+    },
+    {
+      "displayName": "e2e",
+      "preset": "jest-puppeteer",
+      "testMatch": ["<rootDir>/test/convert.e2e.test.js"],
+      "setupFilesAfterEnv": ["<rootDir>/test/jest.setup.js"]
+    }
+  ]
+}

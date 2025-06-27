@@ -28,18 +28,16 @@ jobs:
           # Install sshpass for password authentication
           sudo apt-get update && sudo apt-get install -y sshpass
          
-          echo "Testing SSH connection..."
           # Test SSH connection first
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@185.98.138.207 'echo "SSH connection successful"'
+          sshpass -p "${{ secrets.PASSWORD }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@185.98.138.207 'echo "SSH connection successful"'
          
-          echo "Creating directory on VPS..."
+
           # Create directory on VPS if it doesn't exist
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@185.98.138.207 'mkdir -p /var/www/convert-api'
+          sshpass -p "${{ secrets.PASSWORD }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@185.98.138.207 'mkdir -p /var/www/convert-api'
          
-          echo "Copying files to VPS..."
           # Copy production files to VPS
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -r convert.js package.json index.html root@185.98.138.207:/var/www/convert-api/
+          sshpass -p "${{ secrets.PASSWORD }}" scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -r convert.js package.json index.html root@185.98.138.207:/var/www/convert-api/
          
-          echo "Installing dependencies and starting service..."
+
           # Install dependencies, install PM2 globally, and start service
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@185.98.138.207 'cd /var/www/convert-api && npm install --production && npm install -g pm2 && pm2 restart convert-api || pm2 start convert.js --name convert-api'
+          sshpass -p "${{ secrets.PASSWORD }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@185.98.138.207 'cd /var/www/convert-api && npm install --production && npm install -g pm2 && pm2 restart convert-api || pm2 start convert.js --name convert-api'
